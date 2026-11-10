@@ -1,0 +1,30 @@
+
+services:
+  database:
+    image: postgres:17
+    container_name: taskflow-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - taskflow_data:/var/lib/postgresql/data
+
+  backend:
+    image: taskflow-backend:1.0
+    container_name: taskflow-backend
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://database:5432/${DB_NAME}
+      SPRING_DATASOURCE_USERNAME: ${DB_USER}
+      SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD}
+    depends_on:
+      - database
+
+volumes:
+  taskflow_data:
